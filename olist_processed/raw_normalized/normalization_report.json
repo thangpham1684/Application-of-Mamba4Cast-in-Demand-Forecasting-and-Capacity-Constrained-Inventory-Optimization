@@ -1,0 +1,81 @@
+[
+  {
+    "file": "olist_customers_dataset.csv",
+    "rows_in": 99441,
+    "rows_out": 99441,
+    "duplicates_removed": 0,
+    "top_missing_percent": {},
+    "output": "C:\\Users\\ntnna\\Downloads\\Mamba4Cast-main\\olist_processed\\raw_normalized\\olist_customers_dataset.csv"
+  },
+  {
+    "file": "olist_geolocation_dataset.csv",
+    "rows_in": 1000163,
+    "rows_out": 738332,
+    "duplicates_removed": 261831,
+    "top_missing_percent": {},
+    "output": "C:\\Users\\ntnna\\Downloads\\Mamba4Cast-main\\olist_processed\\raw_normalized\\olist_geolocation_dataset.csv"
+  },
+  {
+    "file": "olist_order_items_dataset.csv",
+    "rows_in": 112650,
+    "rows_out": 112650,
+    "duplicates_removed": 0,
+    "top_missing_percent": {},
+    "output": "C:\\Users\\ntnna\\Downloads\\Mamba4Cast-main\\olist_processed\\raw_normalized\\olist_order_items_dataset.csv"
+  },
+  {
+    "file": "olist_order_payments_dataset.csv",
+    "rows_in": 103886,
+    "rows_out": 103886,
+    "duplicates_removed": 0,
+    "top_missing_percent": {},
+    "output": "C:\\Users\\ntnna\\Downloads\\Mamba4Cast-main\\olist_processed\\raw_normalized\\olist_order_payments_dataset.csv"
+  },
+  {
+    "file": "olist_order_reviews_dataset.csv",
+    "rows_in": 99224,
+    "rows_out": 99224,
+    "duplicates_removed": 0,
+    "top_missing_percent": {
+      "review_comment_title": 88.34153027493349,
+      "review_comment_message": 58.70253164556962
+    },
+    "output": "C:\\Users\\ntnna\\Downloads\\Mamba4Cast-main\\olist_processed\\raw_normalized\\olist_order_reviews_dataset.csv"
+  },
+  {
+    "file": "olist_orders_dataset.csv",
+    "rows_in": 99441,
+    "rows_out": 99441,
+    "duplicates_removed": 0,
+    "top_missing_percent": {
+      "order_delivered_customer_date": 2.981667521444877,
+      "order_delivered_carrier_date": 1.7930229985619612,
+      "order_approved_at": 0.1608994278014099
+    },
+    "output": "C:\\Users\\ntnna\\Downloads\\Mamba4Cast-main\\olist_processed\\raw_normalized\\olist_orders_dataset.csv"
+  },
+  {
+    "file": "olist_products_dataset.csv",
+    "rows_in": 32951,
+    "rows_out": 32951,
+    "duplicates_removed": 0,
+    "top_missing_percent": {},
+    "output": "C:\\Users\\ntnna\\Downloads\\Mamba4Cast-main\\olist_processed\\raw_normalized\\olist_products_dataset.csv"
+  },
+  {
+    "file": "olist_sellers_dataset.csv",
+    "rows_in": 3095,
+    "rows_out": 3095,
+    "duplicates_removed": 0,
+    "top_missing_percent": {},
+    "output": "C:\\Users\\ntnna\\Downloads\\Mamba4Cast-main\\olist_processed\\raw_normalized\\olist_sellers_dataset.csv"
+  },
+  {
+    "file": "product_category_name_translation.csv",
+    "rows_in": 71,
+    "rows_out": 71,
+    "duplicates_removed": 0,
+    "top_missing_percent": {},
+    "output": "C:\\Users\\ntnna\\Downloads\\Mamba4Cast-main\\olist_processed\\raw_normalized\\product_category_name_translation.csv"
+  }
+]

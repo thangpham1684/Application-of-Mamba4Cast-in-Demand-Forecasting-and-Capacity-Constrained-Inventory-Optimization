@@ -1,0 +1,137 @@
+\chapter{Giới thiệu}
+
+% =================================================================
+% ĐỘNG CƠ NGHIÊN CỨU
+% =================================================================
+\section{Động cơ nghiên cứu}
+
+% --- Đoạn 1: Bối cảnh E-commerce & Logistics ---
+Sự bùng nổ mạnh mẽ của thương mại điện tử (e-commerce) trên phạm vi toàn cầu đã làm thay đổi căn bản hành vi tiêu dùng và cấu trúc chuỗi cung ứng. Khác với mô hình bán lẻ truyền thống nơi hàng hóa được trung chuyển theo các lô lớn đến hệ thống cửa hàng cố định, thương mại điện tử đòi hỏi một mạng lưới phân phối cực kỳ linh hoạt, có khả năng xử lý hàng vạn đơn hàng nhỏ lẻ từ nhiều người bán đến trực tiếp tay người mua phân tán trên diện rộng. Trong mạng lưới phân phối đa tầng (multi-echelon distribution network), chi phí logistics thường chiếm tỷ trọng lớn trong giá thành sản phẩm, trong đó chi phí vận chuyển chặng cuối (last-mile delivery) và chi phí lưu kho cố định là hai cấu phần chiếm ưu thế. Sự mất cân bằng trong việc phân bổ dòng chảy hàng hóa không chỉ làm kéo dài thời gian giao hàng, giảm trải nghiệm khách hàng, mà còn gây lãng phí tài nguyên và làm gia tăng chi phí vận hành tổng thể của doanh nghiệp.
+
+% --- Đoạn 2: Tầm quan trọng của bài toán CWLP ---
+Tại các quốc gia có đặc thù địa lý phức tạp và diện tích rộng lớn, việc thiết kế cấu hình mạng lưới logistics là một bài toán mang tính sống còn đối với các doanh nghiệp thương mại điện tử. Bài toán định vị kho bãi có ràng buộc sức chứa (Capacitated Warehouse Location Problem - CWLP) chính là công cụ toán học tối ưu giúp giải quyết nút thắt này. CWLP hướng tới việc đưa ra các quyết định chiến lược: xác định vị trí đặt các kho bãi trung chuyển (Hubs) tối ưu, quản lý công suất chứa của từng kho, và thiết lập sơ đồ phân bổ luồng hàng hóa từ kho đến các điểm cầu tiêu thụ nhằm tối thiểu hóa tổng chi phí cố định mở kho và chi phí vận chuyển \cite{milazzo2022, aardal1998}. Việc giải quyết bài toán này đòi hỏi một tầm nhìn dài hạn và thích ứng cao, bởi lẽ một hệ thống kho bãi hoạt động tối ưu trong giai đoạn này có thể trở nên quá tải hoặc lãng phí công suất trong các giai đoạn tiếp theo do sự biến động không ngừng của nhu cầu thị trường.
+
+% --- Đoạn 3: Thách thức của dữ liệu thưa và dự báo cổ điển ---
+Tuy nhiên, thách thức lớn nhất khi áp dụng mô hình CWLP vào thực tế nằm ở khâu xác định tham số đầu vào cho nhu cầu khách hàng. Nhu cầu mua sắm trực tuyến thường có đặc trưng phi tuyến tính mạnh, phụ thuộc vào mùa vụ, các sự kiện khuyến mãi lớn và có tính chất biến động cực kỳ thưa thớt (sparse demand). Đối với dữ liệu vận chuyển giữa các cặp khu vực nguồn - đích (Origin-Destination - OD), hiện tượng đứt quãng và nhiễu zero xảy ra liên tục do có nhiều chu kỳ không phát sinh giao dịch trên một tuyến đường cụ thể. Các phương pháp dự báo thống kê cổ điển hay các mô hình dự báo chuỗi thưa truyền thống \cite{croston1972} hầu như gặp khó khăn trong việc bắt kịp các xu hướng phi tuyến tính dài hạn và sự thay đổi đột ngột của dòng chảy hàng hóa. Khi đầu vào dự báo nhu cầu bị sai lệch, mô hình tối ưu hóa tiếp theo sẽ đưa ra các quyết định định vị sai lầm, dẫn đến hiện tượng thiếu hụt sức chứa tại các vùng trọng điểm hoặc lãng phí chi phí vận hành kho ở các vùng phụ trợ.
+
+% --- Đoạn 4: Sự ra đời của Mamba4Cast và mô hình không gian trạng thái ---
+Để vượt qua giới hạn của các phương pháp dự báo truyền thống, hướng tiếp cận ứng dụng các mô hình nền tảng chuỗi thời gian (time series foundation models) được huấn luyện trước trên dữ liệu tổng hợp quy mô lớn đã mở ra một hướng đi đột phá. Nổi bật trong xu hướng này là kiến trúc \textbf{Mamba4Cast} \cite{bhethanabhotla2024}, ứng dụng mô hình không gian trạng thái chọn lọc (Selective State Space Models) và lý thuyết lưỡng tính không gian trạng thái cấu trúc (Structured State Space Duality - SSD) của Mamba-2 \cite{dao2024}. Khác với kiến trúc Transformer vốn bị giới hạn bởi độ phức tạp tính toán bình phương theo chiều dài chuỗi \cite{nie2023, zhou2021}, Mamba4Cast duy trì độ phức tạp tuyến tính \cite{gu2024mamba}, cho phép xử lý các chuỗi thời gian lịch sử dài một cách hiệu quả. Bằng cách sử dụng các hàm toán học tiên nghiệm để mô phỏng dữ liệu \cite{dooley2023}, Mamba4Cast có khả năng tổng quát hóa xuất sắc trên các chuỗi thời gian thực tế có độ nhiễu và độ thưa lớn như dữ liệu OD của thương mại điện tử.
+
+% --- Đoạn 5: Các giải thuật tối ưu toán học đối sánh (Đã loại bỏ Aardal và GA) ---
+Sau khi có được kết quả dự báo nhu cầu tương lai, khâu tối ưu hóa mạng lưới CWLP đòi hỏi các giải thuật toán học mạnh mẽ để tìm ra nghiệm tối ưu khả thi. Quy hoạch tuyến tính nguyên hỗn hợp (MILP) giải trực tiếp bằng thuật toán Nhánh và Cắt (Branch-and-Cut) là công cụ chuẩn mực bảo đảm tìm ra nghiệm tối ưu toàn cục cho bài toán \cite{milazzo2022}. Tuy nhiên, khi quy mô bài toán tăng lên theo không gian đa kỳ (multi-period) và kích thước thực tế lớn, mô hình monolithic MILP có thể gặp thách thức lớn về mặt thời gian tính toán do sự bùng nổ số lượng biến nguyên nhị phân. Điều này đặt ra nhu cầu nghiên cứu và áp dụng các giải thuật phân rã toán học nâng cao, tiêu biểu là Phân rã Benders (Benders Decomposition) \cite{sadatasl2021}. Thuật toán phân rã Benders tận dụng cấu trúc đặc thù của bài toán CWLP để chia nhỏ thành bài toán Master số nguyên (quyết định mở kho) và bài toán con liên tục (quyết định phân bổ lưu lượng), giải lặp lại để sinh ra các lát cắt Benders (Benders cuts) giúp thu hẹp không gian tìm kiếm. Việc đối sánh chi tiết hiệu năng và phân tích sự hội tụ giữa phương pháp giải MILP trực tiếp và giải thuật phân rã Benders là cực kỳ quan trọng, giúp đánh giá sự đánh đổi giữa thời gian tính toán và độ lệch tối ưu (Optimality Gap) trong các bài toán logistics quy mô thực tế.
+
+% --- Đoạn 6: Mục tiêu tích hợp và ý nghĩa thực tiễn ---
+Xuất phát từ những bối cảnh và thách thức nêu trên, đồ án này đề xuất hướng đi \textbf{tích hợp toàn diện quy trình dự báo chuỗi thời gian học sâu và tối ưu hóa định vị kho bãi đa kỳ} trên bộ dữ liệu thương mại điện tử thực tế Olist. Đồ án sẽ đi sâu vào việc xây dựng quy trình tiền xử lý, lọc nhiễu chuỗi thưa và đồng bộ hóa dòng thời gian để nâng cao chất lượng dự báo của mô hình học sâu. Kết quả dự báo nhu cầu sẽ được tổng hợp theo chu kỳ để làm đầu vào cho bài toán tối ưu hóa đa kỳ. Bằng việc lập trình đối sánh chi tiết giữa phương pháp giải MILP trực tiếp bằng thuật toán Nhánh và Cắt (Branch-and-Cut) và giải thuật phân rã Benders (Benders Decomposition), đồ án hướng tới việc cung cấp một bộ khung thực nghiệm vững chắc, giúp các nhà quản trị logistics tối ưu hóa chi phí mạng lưới phân phối, cân bằng giữa chi phí cố định và chi phí vận chuyển chặng cuối, và đảm bảo sự ổn định vận hành lâu dài trong môi trường kinh doanh thực tế.
+
+% =================================================================
+% TỔNG QUAN TÀI LIỆU
+% =================================================================
+\section{Tổng quan các nghiên cứu liên quan}
+
+Quy trình tích hợp dự báo và tối ưu hóa vị trí kho chứa (Forecasting-Optimization Integration) là sự giao thoa giữa hai lĩnh vực nghiên cứu khoa học lớn: Khoa học dữ liệu (Data Science) và Vận trù học (Operations Research). Phần này cung cấp một cái nhìn tổng quan về lịch sử phát triển và các nghiên cứu tiêu biểu trong từng cấu phần của đồ án.
+
+\subsection{Các mô hình dự báo chuỗi thời gian thưa thớt trong Logistics}
+Dự báo nhu cầu vận chuyển trong logistics, đặc biệt là thương mại điện tử, thường xuyên đối mặt với dữ liệu phi tuyến tính và có độ thưa lớn. Lịch sử nghiên cứu dự báo chuỗi thưa bắt đầu từ công trình kinh điển của Croston \cite{croston1972}, đề xuất việc phân tách chuỗi thời gian thành hai chuỗi độc lập: chuỗi lượng cầu phi zero và chuỗi khoảng thời gian giữa các lần phát sinh giao dịch. Mặc dù Croston đã khắc phục được nhược điểm của phương pháp làm mịn mũ vốn có xu hướng dự báo nhu cầu quá cao sau các chu kỳ dài không có đơn hàng, phương pháp này vẫn dựa trên giả định các phân phối tuyến tính đơn giản và không có khả năng tự động học các đặc trưng xu hướng phức tạp.
+
+Khi kỷ nguyên học sâu bùng nổ, các kiến trúc mạng nơ-ron hồi quy (RNN) và LSTM, tiêu biểu như DeepAR \cite{bhethanabhotla2024}, đã chứng minh khả năng dự báo xác suất vượt trội trên nhiều chuỗi thời gian có liên kết chéo. Tuy nhiên, DeepAR yêu cầu quá trình huấn luyện lại (fine-tuning) rất tốn kém tài nguyên trên từng tập dữ liệu cụ thể. Để khắc phục điều này, các nghiên cứu gần đây đã hướng tới xây dựng các mô hình nền tảng chuỗi thời gian (Time Series Foundation Models) có khả năng dự báo zero-shot nhờ được huấn luyện trước trên nhiều miền dữ liệu khác nhau mà không cần huấn luyện lại. Tiêu biểu là mô hình Chronos của Amazon \cite{ansari2024} sử dụng kiến trúc Transformer mã hóa các giá trị chuỗi thời gian để dự báo, mô hình Informer \cite{zhou2021} tối ưu hóa cơ chế chú ý cho chuỗi thời gian dài, hoặc TimeGPT \cite{garza2023} tối ưu hóa cấu trúc tự hồi quy phi tuyến. 
+
+Mặc dù đạt độ chính xác cao, các mô hình dựa trên Transformer luôn gặp hạn chế về tốc độ tính toán do cơ chế self-attention có độ phức tạp bình phương \cite{nie2023}. Để giải quyết nút thắt về hiệu năng, Mamba4Cast \cite{bhethanabhotla2024} ra đời ứng dụng kiến trúc Mamba-2 \cite{dao2024} kết hợp với kỹ thuật huấn luyện tiên nghiệm ForecastPFN \cite{dooley2023}. Mamba4Cast duy trì hiệu năng dự báo zero-shot tương đương các mô hình nền tảng Transformer nhưng có tốc độ xử lý nhanh hơn khi chiều dài chuỗi tăng lên, đặc biệt thích hợp cho bài toán logistics quy mô lớn.
+
+\subsection{Bài toán vị trí kho chứa có ràng buộc sức chứa (Đã loại bỏ Aardal và GA)}
+Bài toán định vị kho bãi (Facility Location Problem) đã được nghiên cứu rộng rãi trong nhiều thập kỷ qua dưới dạng các mô hình toán học rời rạc hoặc liên tục. Trong đó, bài toán định vị kho hàng có giới hạn sức chứa (Capacitated Warehouse Location Problem - CWLP) là biến thể mang tính thực tiễn và phức tạp nhất, bổ sung thêm ràng buộc về năng lực phục vụ tối đa của từng kho ứng viên \cite{milazzo2022, aardal1998}.
+
+Để tìm kiếm nghiệm tối ưu toàn cục cho bài toán CWLP dưới dạng Quy hoạch tuyến tính nguyên hỗn hợp (MILP), thuật toán Nhánh và Cắt (Branch-and-Cut) kết hợp với các kỹ thuật cắt tỉa không gian nghiệm (cuts) và tìm kiếm heuristics nguyên được áp dụng rộng rãi trong các bộ giải thương mại và mã nguồn mở. Tuy nhiên, đối với các bài toán có quy mô lớn hoặc không gian đa kỳ biến động liên tục, thời gian giải của mô hình monolithic MILP trực tiếp có thể tăng theo cấp số nhân. Thuật toán Phân rã Benders (Benders Decomposition) \cite{sadatasl2021} là một phương pháp toán học đột phá giúp giải quyết nút thắt này thông qua cơ chế phân tách phân chiếu (projection and partitioning). Thuật toán chia bài toán MILP gốc thành bài toán chính tối ưu số nguyên (Master Problem) chỉ chứa biến quyết định mở kho và bài toán con liên tục (Primal/Dual Subproblem) quyết định phân bổ dòng hàng hóa. Thông qua vòng lặp giải tuần tự và sinh liên tục các lát cắt Benders (Benders cuts) từ nghiệm đối ngẫu của bài toán con để cập nhật cho bài toán chính, giải thuật Benders cho phép tìm ra nghiệm tối ưu chính xác mà không cần phải giải toàn bộ mô hình nguyên khối khổng lồ ở mỗi bước, làm giảm đáng kể gánh nặng bộ nhớ và thời gian tính toán của solver trong các bài toán quy mô lớn.
+
+\subsection{Xu hướng tích hợp dự báo và tối ưu hóa}
+Trong quản trị chuỗi cung ứng hiện đại, việc tích hợp hai khâu dự báo nhu cầu và tối ưu hóa mạng lưới đang trở thành một chuẩn mực nghiên cứu mới. Hướng tiếp cận truyền thống thường tách rời hai khâu này: bộ phận phân tích dữ liệu dự báo nhu cầu độc lập, sau đó chuyển kết quả dự báo tĩnh làm tham số đầu vào cho bộ phận tối ưu hóa. Tuy nhiên, hướng tiếp cận rời rạc này bỏ qua sự lan truyền sai số, khiến mô hình tối ưu phản ứng kém với các biến động thực tế.
+
+Nghiên cứu về tích hợp tuần tự thông minh (Sequential Predict-then-Optimize) đề xuất việc kết nối trực tiếp đầu ra dự báo động theo chu kỳ thời gian từ các mô hình học sâu hiện đại vào các mô hình tối ưu hóa đa kỳ \cite{milazzo2022}. Bằng việc kết hợp khả năng dự báo zero-shot thời gian thực của các mô hình nền tảng \cite{bhethanabhotla2024} và tính chuẩn xác của các solver MILP hay Benders Decomposition, mạng lưới logistics có thể tự động thích ứng thông qua việc cập nhật các quyết định mở kho và điều phối vận tải theo từng chu kỳ, giúp giảm thiểu đáng kể chi phí cố định dư thừa và phòng ngừa rủi ro tắc nghẽn chuỗi cung ứng.
+
+% =================================================================
+% ĐỐI TƯỢNG VÀ PHẠM VI NGHIÊN CỨU
+% =================================================================
+\section{Đối tượng và Phạm vi nghiên cứu}
+
+\subsection{Đối tượng nghiên cứu}
+Đồ án này tập trung nghiên cứu hành vi, hiệu năng và cấu trúc toán học của hai nhóm đối tượng chính tương ứng với hai giai đoạn của pipeline tích hợp:
+\begin{enumerate}
+    \item \textbf{Mô hình dự báo chuỗi thời gian thưa:} Đối tượng nghiên cứu chính là mô hình học sâu nền tảng \textbf{Mamba4Cast} (ứng dụng kiến trúc SSD Mamba-2 \cite{bhethanabhotla2024, dao2024}). Đối tượng so sánh đối chứng là mô hình nền tảng \textbf{Amazon Chronos-T5-Small} (cấu trúc Transformer tự hồi quy \cite{ansari2024}).
+    \item \textbf{Phương pháp giải bài toán tối ưu hóa định vị kho bãi đa kỳ (CWLP):} Đối tượng nghiên cứu là bài toán định vị kho hàng có giới hạn sức chứa đa kỳ dựa trên thiết lập toán học của Milazzo và cộng sự \cite{milazzo2022}. Các phương pháp giải được đối sánh trực tiếp bao gồm:
+        \begin{itemize}
+            \item Quy hoạch tuyến tính nguyên hỗn hợp (MILP) giải trực tiếp bằng thuật toán Nhánh và Cắt (Branch-and-Cut) thông qua bộ giải CBC của thư viện PuLP.
+            \item Thuật toán phân rã Benders (Benders Decomposition) tự lập trình thông qua vòng lặp phản hồi lặp lại giữa bài toán chính Master quyết định biến nhị phân mở kho và bài toán phụ đối ngẫu Dual Subproblem quyết định luồng hàng hóa liên tục \cite{sadatasl2021}.
+        \end{itemize}
+\end{enumerate}
+
+\subsection{Phạm vi nghiên cứu}
+\begin{itemize}
+    \item \textbf{Phạm vi dữ liệu:} Nghiên cứu được giới hạn thực nghiệm trên bộ dữ liệu thương mại điện tử công khai đại diện cho thị trường quốc gia Brazil. Dữ liệu địa lý và lưu lượng được giới hạn khái quát như sau:
+    \begin{itemize}
+        \item \textit{Không gian:} Gom nhóm các khu vực bưu chính thành các tiểu vùng địa lý đại diện bởi tọa độ tâm hình học. Ma trận khoảng cách giữa các vùng được tính toán bằng công thức Haversine trên bề mặt cầu trái đất.
+        \item \textit{Tuyến đường (OD routes):} Áp dụng bộ lọc thắt chặt để lọc ra các tuyến OD cốt lõi hoạt động tích cực nhất nhằm giảm thiểu nhiễu và độ thưa.
+        \item \textit{Thời gian:} Chuỗi thời gian nhu cầu lịch sử được gom theo tuần. Khi đưa vào bài toán tối ưu hóa CWLP, khoảng chân trời dự báo tương lai sẽ được tổng hợp thành các chu kỳ tháng.
+    \end{itemize}
+    
+    \item \textbf{Phạm vi kỹ thuật:}
+    \begin{itemize}
+        \item \textit{Lớp mô hình dự báo:} Mô hình dự báo được sử dụng ở trạng thái \textbf{zero-shot inference} (sử dụng checkpoint đã được huấn luyện sẵn trên dữ liệu tổng hợp của tác giả gốc \cite{bhethanabhotla2024}, không thực hiện huấn luyện lại trên bộ dữ liệu thực nghiệm để kiểm chứng khả năng tổng quát hóa).
+        \item \textit{Công nghệ lập trình:} Toàn bộ pipeline được thiết lập bằng ngôn ngữ Python trên các hệ điều hành phổ dụng cho khâu tiền xử lý dữ liệu và chạy solver tối ưu. Việc chạy suy diễn dự báo cho mô hình học sâu (yêu cầu phần cứng GPU và các thư viện biên dịch tối ưu) được thực hiện trên môi trường điện toán đám mây với phần cứng hỗ trợ tăng tốc GPU chuyên dụng.
+    \end{itemize}
+\end{itemize}
+
+% =================================================================
+% MỤC TIÊU NGHIÊN CỨU
+% =================================================================
+\section{Mục tiêu nghiên cứu}
+
+Đồ án được thực hiện với mong muốn xây dựng một hệ thống tích hợp hoàn chỉnh và khoa học từ khâu dự báo dữ liệu thô đến khâu ra quyết định tối ưu hóa mạng lưới logistics. Các mục tiêu khoa học cụ thể bao gồm:
+
+\subsection{Mục tiêu tổng quát}
+Thiết kế, xây dựng và thực nghiệm thành công hệ thống pipeline tích hợp mô hình dự báo chuỗi thời gian học sâu Mamba4Cast và mô hình tối ưu hóa vị trí kho chứa CWLP đa kỳ. Thông qua thực nghiệm trên dữ liệu thực tế, đồ án hướng tới việc đánh giá toàn diện tính khả thi, hiệu năng và tính ổn định của các phương pháp tối ưu khác nhau dưới sự ảnh hưởng của dữ liệu dự báo nhu cầu thực tế.
+
+\subsection{Mục tiêu cụ thể}
+
+\subsubsection{\large 1. Nghiên cứu lý thuyết mạng nơ-ron không gian trạng thái và Mamba4Cast}
+\begin{itemize}
+    \item Nghiên cứu nguyên lý toán học của Mô hình không gian trạng thái tuyến tính (SSM) dưới dạng các phương trình liên tục chuyển đổi sang rời rạc.
+    \item Làm rõ cơ chế hoạt động của SSD (Structured State Space Duality) trong Mamba-2 giúp tích hợp khả năng tính toán ma trận song song của Transformer nhưng vẫn duy trì độ phức tạp tuyến tính của RNN \cite{dao2024}.
+    \item Hệ thống hóa quy trình sinh dữ liệu tổng hợp tiên nghiệm (ForecastPFN và Gaussian Process) dùng để huấn luyện mô hình nền tảng Mamba4Cast \cite{bhethanabhotla2024, dooley2023}.
+\end{itemize}
+
+\subsubsection{\large 2. Nghiên cứu toán học mô hình tối ưu CWLP và giải thuật phân rã}
+\begin{itemize}
+    \item Thiết lập công thức toán học hoàn chỉnh cho bài toán CWLP đa kỳ: xây dựng hàm mục tiêu tối thiểu hóa tổng chi phí vận hành (gồm chi phí mở kho cố định và chi phí vận chuyển biến đổi); xây dựng hệ phương trình ràng buộc về cân bằng cung cầu khách hàng, giới hạn năng lực chứa của từng kho hàng trung chuyển, điều kiện biên của biến nhị phân và giới hạn số lượng kho tối đa được phép mở $k$ \cite{milazzo2022}.
+    \item Xây dựng thuật toán Phân rã Benders (Benders Decomposition): thiết lập bài toán Master tối ưu hóa biến số nguyên nhị phân quyết định cấu hình mở kho; xây dựng bài toán phụ đối ngẫu (Dual Subproblem) giải quyết phân bổ luồng hàng hóa liên tục; thiết lập cơ chế sinh tự động và bổ sung liên tục các lát cắt Benders (Benders cuts) vào bài toán Master ở mỗi vòng lặp cho đến khi hội tụ nghiệm \cite{sadatasl2021}.
+\end{itemize}
+
+\subsubsection{\large 3. Thực nghiệm tiền xử lý và chạy dự báo trên dữ liệu thực tế}
+\begin{itemize}
+    \item Xây dựng thuật toán tiền xử lý dữ liệu thô: ước lượng hệ số cước vận chuyển thực tế $\lambda$ thông qua phân tích phân vị của giá trị cước vận chuyển và thể tích sản phẩm lịch sử.
+    \item Cài đặt bộ lọc chuỗi thưa nhằm lọc ra các tuyến OD cốt lõi; thực hiện thuật toán điền khuyết chặn trên toàn cục (bounded zero-imputation) để đồng bộ hóa dòng thời gian kết thúc cho tất cả các tuyến.
+    \item Chạy suy diễn dự báo zero-shot bằng mô hình đề xuất và mô hình đối chứng trên tập Test; thực hiện gộp kết quả dự báo hàng tuần thành nhu cầu tháng để tạo ra nhu cầu dự báo cho các chu kỳ tương lai.
+\end{itemize}
+
+\subsubsection{\large 4. Đánh giá đối sánh định lượng và phân tích chiến lược vận hành}
+\begin{itemize}
+    \item Đánh giá sai số dự báo của mô hình đề xuất và các mô hình đối chứng bằng các chỉ số sai số chuỗi thời gian thưa tiêu chuẩn (MAE, RMSE, sMAPE và MASE) trên tập dữ liệu kiểm thử thực tế.
+    \item Giải bài toán tối ưu hóa đa kỳ bằng hai phương pháp chính (MILP giải trực tiếp và Phân rã Benders) và so sánh chi tiết hiệu năng dựa trên các chỉ số: tổng chi phí hệ thống tối ưu, cấu hình vị trí kho mở thực tế qua các tháng, thời gian thực thi của giải thuật và độ lệch tối ưu (Optimality Gap) giữa cận trên và cận dưới của thuật toán phân rã Benders.
+    \item Phân tích tính hội tụ của thuật toán phân rã Benders theo số lượng vòng lặp tối đa và đánh giá sự đánh đổi (trade-off) giữa thời gian chạy giải thuật và chất lượng nghiệm tối ưu từ góc độ quản trị vận hành chuỗi cung ứng.
+\end{itemize}
+
+\section{Tóm tắt cấu trúc đồ án}
+
+Để giải quyết trọn vẹn các mục tiêu nghiên cứu đã đặt ra, đồ án tốt nghiệp được xây dựng và trình bày theo cấu trúc gồm 3 chương chính và phần kết luận, cụ thể như sau:
+
+\begin{itemize}
+    \item \textbf{Chương 1 - Giới thiệu:} Chương này trình bày lý do chọn đề tài, tính cấp thiết và động cơ nghiên cứu của việc tích hợp khâu dự báo nhu cầu với tối ưu hóa vị trí kho trung chuyển. Chương này cũng cung cấp một cái nhìn tổng quan về các công trình nghiên cứu liên quan trước đây trong lĩnh vực dự báo chuỗi thời gian thưa (phương pháp Croston, DeepAR, các mô hình nền tảng như Chronos, TimeGPT) và bài toán định vị kho có sức chứa (CWLP). Đồng thời, đối tượng, phạm vi, mục tiêu nghiên cứu và các đóng góp chính của đồ án cũng được định nghĩa rõ ràng.
+    
+    \item \textbf{Chương 2 - Phương pháp nghiên cứu:} Tập trung xây dựng cơ sở lý thuyết toán học vững chắc cho toàn bộ pipeline đề xuất. Nội dung chương bao gồm: giới thiệu chi tiết về Mô hình Không gian Trạng thái (SSM), kiến trúc SSD Mamba-2 và nguyên lý đối ngẫu; cấu trúc hệ thống của mô hình dự báo nền tảng Mamba4Cast và cơ chế suy diễn zero-shot; mô hình hóa toán học bài toán tối ưu vị trí kho bãi đa thời kỳ có ràng buộc sức chứa động (CWLP); chi tiết các giải thuật giải bài toán tối ưu bao gồm Quy hoạch tuyến tính nguyên hỗn hợp (MILP) giải trực tiếp và thuật toán Phân rã Benders (Benders Decomposition) tự xây dựng vòng lặp Master-Subproblem.
+    
+    \item \textbf{Chương 3 - Thực nghiệm và Kết quả:} Trình bày toàn bộ quá trình chuẩn bị dữ liệu, thực hiện mô phỏng và phân tích kết quả trên bộ dữ liệu thương mại điện tử thực tế Olist (Brazil). Chương này mô tả quy trình tiền xử lý dữ liệu (gom cụm không gian, lọc chuỗi thưa, điền khuyết chặn trên toàn cục); định nghĩa các độ đo sai số; đối sánh hiệu năng dự báo của Mamba4Cast với các baseline (Seasonal Naive, Chronos-T5-Small); đối sánh hiệu năng của MILP trực tiếp với phân rã Benders về mặt chi phí vận hành và tốc độ tính toán; phân tích sâu sắc các khía cạnh kinh tế, tính hội tụ và sự đánh đổi (trade-off) khi dừng sớm giải thuật Benders.
+    
+    \item \textbf{Phần Kết luận:} Tổng hợp các kết quả khoa học và đóng góp thực tiễn đồ án đã đạt được. Chỉ ra những kỹ năng chuyên môn đã tích lũy trong quá trình làm đồ án, đồng thời đề xuất những hướng đi tiềm năng để phát triển và mở rộng nghiên cứu trong tương lai.
+\end{itemize}
+
+Để hỗ trợ khả năng kiểm chứng và tái lập (reproducibility) kết quả thực nghiệm, toàn bộ mã nguồn chương trình, bộ dữ liệu đã được tiền xử lý và các kết quả liên quan của đồ án được lưu trữ công khai tại địa chỉ GitHub: \url{https://github.com/phamquangthang1684/mamba4cast-trong-nh-v-hub}.
+
+

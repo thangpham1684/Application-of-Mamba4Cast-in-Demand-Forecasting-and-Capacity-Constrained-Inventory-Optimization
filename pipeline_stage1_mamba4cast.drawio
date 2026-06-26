@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" version="24.0.0">
+  <diagram id="stg1_diag" name="Giai Đoạn 1">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="stg1_title" value="✦ GIAI ĐOẠN 1: DỰ BÁO NHU CẦU LOGISTICS BẰNG MAMBA4CAST ✦" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=18;fontStyle=1;fontColor=#1b3a4b;" vertex="1" parent="1">
+          <mxGeometry x="100" y="20" width="1000" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="stg1_col1_badge" value="1. TIỀN XỬ LÝ &amp; BIỂU DIỄN ĐẦU VÀO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2e7d32;strokeColor=#1b5e20;fontSize=12;fontStyle=1;fontColor=#ffffff;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="140" y="80" width="320" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_raw_ts" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#2e7d32;&quot;&gt;🗄️&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:11px; font-family:Arial, sans-serif; color:#2e7d32; line-height:1.2;&quot;&gt;&lt;b&gt;Chuỗi thời gian gốc&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;d_t (Giá trị)&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="90" y="140" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_minmax" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#2e7d32;&quot;&gt;📈&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:11px; font-family:Arial, sans-serif; color:#2e7d32; line-height:1.2;&quot;&gt;&lt;b&gt;Chuẩn hóa Min-Max&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Đưa dữ liệu về khoảng [0, 1]&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="90" y="230" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_val_emb" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#2e7d32;&quot;&gt;🔗&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:10px; font-family:Arial, sans-serif; color:#2e7d32; line-height:1.2;&quot;&gt;&lt;b&gt;Biểu diễn giá trị&lt;br/&gt;(Value Linear Embedding)&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Biểu diễn giá trị thành vector đặc trưng&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="90" y="320" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_time_info" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#e65100;&quot;&gt;📅&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:10px; font-family:Arial, sans-serif; color:#e65100; line-height:1.2;&quot;&gt;&lt;b&gt;Thông tin thời gian (ds)&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Năm, Tháng, Ngày, Thứ trong tuần, Thứ trong năm, Giờ, Phút&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#f57c00;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="310" y="140" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_sin_enc" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#e65100;&quot;&gt;〰️&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:10px; font-family:Arial, sans-serif; color:#e65100; line-height:1.2;&quot;&gt;&lt;b&gt;Mã hóa tuần hoàn&lt;br/&gt;(Sinusoidal Encoding)&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Trích xuất đặc trưng chu kỳ&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#f57c00;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="310" y="230" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_pos_emb" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#e65100;&quot;&gt;🕒&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:10px; font-family:Arial, sans-serif; color:#e65100; line-height:1.2;&quot;&gt;&lt;b&gt;Biểu diễn vị trí thời gian&lt;br/&gt;(Position Embedding)&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Biểu diễn thông tin thời gian thành vector đặc trưng&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#f57c00;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="310" y="320" width="200" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_concat" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#4a148c;&quot;&gt;📦&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:11px; font-family:Arial, sans-serif; color:#4a148c; line-height:1.2;&quot;&gt;&lt;b&gt;Ghép các vector đặc trưng&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Vector embedding đầu vào (112 chiều)&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="160" y="415" width="280" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_conv1" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:30px; font-size:18px; color:#0d47a1;&quot;&gt;📶&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:9px; font-family:Arial, sans-serif; color:#0d47a1; line-height:1.2;&quot;&gt;&lt;b&gt;Tích chập nhân quả 1D&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Kernel = 5, độ giãn = 1&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#1976d2;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="50" y="500" width="110" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_conv2" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:30px; font-size:18px; color:#0d47a1;&quot;&gt;📶&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:9px; font-family:Arial, sans-serif; color:#0d47a1; line-height:1.2;&quot;&gt;&lt;b&gt;Tích chập nhân quả 1D&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Kernel = 5, độ giãn = 2&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#1976d2;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="175" y="500" width="110" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_conv3" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:30px; font-size:18px; color:#0d47a1;&quot;&gt;📶&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:9px; font-family:Arial, sans-serif; color:#0d47a1; line-height:1.2;&quot;&gt;&lt;b&gt;Tích chập nhân quả 1D&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Kernel = 5, độ giãn = 4&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#1976d2;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="300" y="500" width="110" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_conv4" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:30px; font-size:18px; color:#0d47a1;&quot;&gt;📶&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:9px; font-family:Arial, sans-serif; color:#0d47a1; line-height:1.2;&quot;&gt;&lt;b&gt;Tích chập nhân quả 1D&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Kernel = 5, độ giãn = 8&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#1976d2;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="425" y="500" width="110" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_concat_scale" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#4a148c;&quot;&gt;📦&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:11px; font-family:Arial, sans-serif; color:#4a148c; line-height:1.2;&quot;&gt;&lt;b&gt;Ghép và tăng số chiều&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Không gian đặc trưng 1024 chiều&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="160" y="595" width="280" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_inception" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#0d47a1;&quot;&gt;🕸️&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:10px; font-family:Arial, sans-serif; color:#0d47a1; line-height:1.2;&quot;&gt;&lt;b&gt;Inception Layer&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Kết hợp thông tin đa tỉ lệ (nhiều độ giãn khác nhau)&lt;br/&gt;Không gian đặc trưng 1024 chiều&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#1976d2;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="140" y="680" width="320" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="stg1_col2_badge" value="2. MÔ HÌNH MAMBA4CAST (ENCODER)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7b1fa2;strokeColor=#4a148c;fontSize=12;fontStyle=1;fontColor=#ffffff;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="680" y="80" width="340" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stg1_col2_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9c27b0;strokeWidth=1.5;dashed=1;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="620" y="130" width="460" height="380" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_ln1" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#0d47a1;&quot;&gt;⚖️&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:11px; font-family:Arial, sans-serif; color:#0d47a1; line-height:1.2;&quot;&gt;&lt;b&gt;LayerNorm&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Chuẩn hóa lớp&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#1976d2;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="660" y="160" width="380" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_mamba2" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:24px; color:#4a148c;&quot;&gt;⚙️&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:10px; font-family:Arial, sans-serif; color:#4a148c; line-height:1.2;&quot;&gt;&lt;b&gt;Mamba2 Block&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Mở rộng trạng thái (N) = 128 | Hệ số mở rộng (E) = 2 | d_model = 1024&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="660" y="240" width="380" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_conv_gelu" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#4a148c;&quot;&gt;🌀&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:11px; font-family:Arial, sans-serif; color:#4a148c; line-height:1.2;&quot;&gt;&lt;b&gt;Tích chập nhân quả xếp chồng + GeLU&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Trích xuất biểu diễn cuối cùng&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="660" y="340" width="380" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_ln2" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#0d47a1;&quot;&gt;⚖️&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:11px; font-family:Arial, sans-serif; color:#0d47a1; line-height:1.2;&quot;&gt;&lt;b&gt;LayerNorm&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Chuẩn hóa lớp&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#1976d2;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="660" y="420" width="380" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="stg1_col3_badge" value="3. GIẢI MÃ &amp; DỰ BÁO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2e7d32;strokeColor=#1b5e20;fontSize=12;fontStyle=1;fontColor=#ffffff;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="730" y="540" width="240" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_decoder" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:22px; color:#1b5e20;&quot;&gt;🔗&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:11px; font-family:Arial, sans-serif; color:#1b5e20; line-height:1.2;&quot;&gt;&lt;b&gt;Decoder Linear Projection&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;Chuyển vector đặc trưng thành giá trị dự báo&lt;br/&gt;Các giá trị đầu ra được khởi tạo bằng 0 trong giai đoạn suy luận&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="650" y="590" width="400" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_pred_ts" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; valign=&quot;middle&quot; style=&quot;width:40px; font-size:26px; color:#e65100;&quot;&gt;🎯&lt;/td&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:11px; font-family:Arial, sans-serif; color:#e65100; line-height:1.3;&quot;&gt;&lt;b&gt;Chuỗi thời gian dự báo (Logistics Demand Forecast)&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;color:#555555;&quot;&gt;• Dự báo nhiều điểm trong một lần suy luận&lt;br/&gt;• Tầm dự báo: 24 tuần (6 tháng)&lt;br/&gt;• Đầu ra: olist_mamba_future_predictions.csv&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;whiteSpace=wrap;html=1;html=1;fillColor=#ffffff;strokeColor=#f57c00;strokeWidth=1.5;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="650" y="695" width="400" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_1" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#2e7d32;" edge="1" source="p1_raw_ts" target="p1_minmax" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_2" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#2e7d32;" edge="1" source="p1_minmax" target="p1_val_emb" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_3" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#f57c00;" edge="1" source="p1_time_info" target="p1_sin_enc" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_4" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#f57c00;" edge="1" source="p1_sin_enc" target="p1_pos_emb" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_val_concat" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#2e7d32;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" edge="1" source="p1_val_emb" target="p1_concat" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_pos_concat" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#f57c00;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" edge="1" source="p1_pos_emb" target="p1_concat" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_split_0" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#7b1fa2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p1_concat" target="p1_conv1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_split_1" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#7b1fa2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p1_concat" target="p1_conv2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_split_2" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#7b1fa2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p1_concat" target="p1_conv3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_split_3" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#7b1fa2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p1_concat" target="p1_conv4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_merge_0" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#1976d2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p1_conv1" target="p1_concat_scale" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_merge_1" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#1976d2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p1_conv2" target="p1_concat_scale" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_merge_2" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#1976d2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p1_conv3" target="p1_concat_scale" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_merge_3" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#1976d2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p1_conv4" target="p1_concat_scale" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_scale_incep" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#7b1fa2;" edge="1" source="p1_concat_scale" target="p1_inception" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_incep_ln1" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.75;endArrow=classic;html=1;strokeColor=#1b3a4b;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" edge="1" source="p1_inception" target="p1_ln1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_ln1_mamba" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#1976d2;" edge="1" source="p1_ln1" target="p1_mamba2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_mamba_conv" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#7b1fa2;" edge="1" source="p1_mamba2" target="p1_conv_gelu" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_conv_ln2" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#7b1fa2;" edge="1" source="p1_conv_gelu" target="p1_ln2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_residual" value="Kết nối dư (Residual)" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;dashed=1;endArrow=classic;html=1;strokeColor=#1b3a4b;exitX=1;exitY=0.5;entryX=1;entryY=0.5;fontSize=10;labelBackgroundColor=#ffffff;align=center;" edge="1" source="p1_ln1" target="p1_ln2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_ln2_dec" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#1976d2;" edge="1" source="p1_ln2" target="p1_decoder" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1_dec_pred" value="" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;endArrow=classic;html=1;strokeColor=#2e7d32;" edge="1" source="p1_decoder" target="p1_pred_ts" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="stg1_legend_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#dee2e6;dashed=1;strokeWidth=1.2;" vertex="1" parent="1">
+          <mxGeometry x="50" y="860" width="1100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l1" value="Xử lý dữ liệu" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2e7d32;fillColor=#ffffff;fontSize=10;fontColor=#2e7d32;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="872" width="130" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="l2" value="Mã hóa thời gian" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#f57c00;fillColor=#ffffff;fontSize=10;fontColor=#e65100;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="240" y="872" width="130" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="l3" value="Mô hình Mamba4Cast" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#7b1fa2;fillColor=#ffffff;fontSize=10;fontColor=#4a148c;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="400" y="872" width="160" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="l4" value="Kết hợp &amp; chiếu" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1976d2;fillColor=#ffffff;fontSize=10;fontColor=#0d47a1;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="590" y="872" width="130" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="l5" value="Giải mã &amp; đầu ra" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2e7d32;fillColor=#e8f5e9;fontSize=10;fontColor=#1b5e20;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="750" y="872" width="130" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="l6" value="&lt;table border=&quot;0&quot; style=&quot;width:100%; border-collapse:collapse;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;font-size:10px; font-weight:bold; color:#333;&quot;&gt;Luồng dữ liệu&lt;/td&gt;&lt;td valign=&quot;middle&quot; style=&quot;padding-left:10px; font-size:16px; color:#333;&quot;&gt;➔&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="910" y="872" width="140" height="26" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,445 @@
+\chapter{Phương pháp luận}
+
+% =================================================================
+% TIỂU MỤC 2.1: MÔ HÌNH HÓA BÀI TOÁN
+% =================================================================
+\section{Mô hình hóa bài toán}
+\label{sec:problem_modeling}
+
+Trong nghiên cứu này, bài toán quy hoạch và tối ưu hóa mạng lưới logistics được mô hình hóa dưới dạng bài toán tích hợp dự báo và tối ưu hóa vị trí kho chứa có ràng buộc sức chứa đa thời kỳ (\textit{Multi-Period Capacitated Warehouse Location Problem - CWLP}). Quy trình ra quyết định tuân thủ chặt chẽ nguyên lý \textit{Forecast-Then-Optimize} (Dự báo trước - Tối ưu sau), trong đó kết quả dự báo điểm của dòng hàng hóa đóng vai trò là tham số đầu vào cho mô hình tối ưu tuyến tính nguyên hỗn hợp (MILP).
+
+Mục tiêu chung của bài toán là xác định một cấu hình kho hàng hoạt động tối ưu qua các tháng nhằm đáp ứng đầy đủ nhu cầu của khách hàng, đồng thời tối thiểu hóa tổng chi phí vận hành mạng lưới (bao gồm chi phí vận chuyển đường bộ và chi phí cố định để mở/duy trì các kho trung chuyển).
+
+Giả định hệ thống hoạt động trên tập chu kỳ thời gian đa kỳ $\mathcal{T} = \{1, \dots, T_{\text{max}}\}$. Tại mỗi thời kỳ $t \in \mathcal{T}$, bài toán được phát biểu toán học như sau:
+\begin{enumerate}
+    \item \textbf{Giai đoạn 1 - Dự báo chặng đầu:}
+    Đối với mỗi tuyến hành trình nguồn - đích (Origin-Destination - OD) nối từ vùng bán $i \in \mathcal{F}$ đến vùng mua $j \in \mathcal{D}$, dựa vào chuỗi dữ liệu thể tích vận chuyển lịch sử tuần $z_{ij, 1:C}$, mô hình học sâu Mamba4Cast được áp dụng để dự báo nhu cầu tuần tương lai $\widehat{d}_{ij, w}$ trong khoảng thời gian chân trời $H$:
+    \begin{equation}
+        \widehat{d}_{ij, w} = f_{\text{Mamba4Cast}}(z_{ij, 1:C}), \quad w = C + 1, \dots, C + H
+    \end{equation}
+    
+    \item \textbf{Giai đoạn 2 - Gom nhóm và Tối ưu hóa vị trí kho đa kỳ:}
+    Nhu cầu tuần dự báo $\widehat{d}_{ij, w}$ được gom nhóm tích lũy theo tháng để hình thành tổng nhu cầu thực tế động $d_{j, t}$ tại vùng tiêu thụ $j$ trong tháng $t$:
+    \begin{equation}
+        d_{j, t} = \sum_{w \in \text{tháng } t} \sum_{i \in \mathcal{F}} \widehat{d}_{ij, w}, \quad \forall j \in \mathcal{D}, t \in \mathcal{T}
+    \end{equation}
+    Dựa trên tổng nhu cầu động này, mô hình tối ưu hóa CWLP xác định cấu hình kho tối ưu $y_{i,t}^*$ và lượng phân bổ luồng hàng $x_{ij,t}^*$:
+    \begin{equation}
+        (y_{i,t}^*, x_{ij,t}^*) = \arg\min Z_t(y, x)
+    \end{equation}
+    với hàm mục tiêu tối thiểu hóa tổng chi phí:
+    \begin{equation}
+        Z_t = \sum_{i \in \mathcal{F}} \sum_{j \in \mathcal{D}} c_{ij} x_{ij,t} + \sum_{i \in \mathcal{F}} f_i y_{i,t}
+    \end{equation}
+    dưới các ràng buộc về cân bằng cung cầu, giới hạn sức chứa kho động $S_{i,t}$, và giới hạn số lượng kho tối đa $k$.
+\end{enumerate}
+
+% =================================================================
+% TIỂU MỤC 2.2: PIPELINE OVERVIEW
+% =================================================================
+\section{pipeline overview}
+\label{sec:pipeline_overview}
+
+Quy trình xử lý tích hợp của đồ án được thiết kế đồng bộ từ dữ liệu thô đến việc ra quyết định tối ưu vị trí kho hàng. Toàn bộ pipeline được chia làm hai giai đoạn lớn với các bước chi tiết sau (sơ đồ chi tiết được mô tả trực quan trong Hình \ref{fig:pipeline_phase1} và Hình \ref{fig:pipeline_phase2}):
+
+\subsection{Giai đoạn 1: Dự báo nhu cầu dòng hàng hóa chặng đầu}
+\begin{itemize}
+    \item \textbf{Bước 1 - Gom cụm không gian (Spatial Aggregation):} Bóc tách dữ liệu bưu chính (Zip Code) 5 chữ số của Brazil, gom nhóm dựa trên 2 chữ số đầu để quy đổi về 100 tiểu vùng địa lý (micro-regions). Tọa độ đại diện (Centroid) của mỗi vùng được tính bằng trung bình tọa độ GPS của tất cả các điểm thuộc vùng đó.
+    \item \textbf{Bước 2 - Gom nhóm thời gian (Temporal Aggregation):} Lũy kế thể tích các sản phẩm vận chuyển (tính từ chiều dài, rộng, cao thực tế trong danh mục hàng hóa) theo từng tuần để tạo chuỗi dữ liệu thể tích hàng hóa ($m^3$/tuần).
+    \item \textbf{Bước 3 - Bộ lọc chuỗi thưa (Sparse Filtering):} Loại bỏ các tuyến đường có lượng giao dịch quá thưa thớt bằng 3 tiêu chuẩn nghiêm ngặt: số tuần hoạt động tối thiểu $\ge 16$ tuần, mật độ chuỗi khác không $\ge 30\%$, và phát sinh ít nhất 2 tuần có đơn hàng trong 12 tuần gần nhất.
+    \item \textbf{Bước 4 - Điền khuyết giới hạn (Bounded Imputation):} Điền giá trị 0 cho các tuần không phát sinh đơn hàng nằm trong khoảng thời gian hoạt động thực tế của từng tuyến OD.
+    \item \textbf{Bước 5 - Zero-shot Forecasting:} Sử dụng mô hình nền tảng Mamba4Cast thực hiện suy luận trực tiếp trên cửa sổ ngữ cảnh lịch sử để đưa ra dự báo thể tích vận chuyển cho 24 tuần tiếp theo.
+\end{itemize}
+
+\subsection{Giai đoạn 2: Tối ưu hóa vị trí kho hàng đa thời kỳ}
+\begin{itemize}
+    \item \textbf{Bước 6 - Tích hợp nhu cầu động theo tháng:} Tổng hợp nhu cầu tuần dự báo thành nhu cầu tháng ($T_{\text{max}} = 6$ tháng) tại 64 vùng tiêu thụ khách hàng.
+    \item \textbf{Bước 7 - Khớp hệ số cước phí vận chuyển:} Sử dụng phân tích hồi quy trên $97.762$ đơn hàng lịch sử thực tế của Olist, lọc nhiễu ngoại lai (winsorize) để xác định đơn giá cước vận tải đường bộ trung vị của Brazil là $\lambda = 6{,}22\ \text{BRL/(km} \cdot \text{m}^3)$.
+    \item \textbf{Bước 8 - Thiết lập ma trận chi phí:} Tính khoảng cách Haversine giữa các tâm vùng để thiết lập ma trận chi phí vận chuyển đơn vị $c_{ij} = \lambda \times \text{Haversine}(i, j)$ BRL/$m^3$.
+    \item \textbf{Bước 9 - Tối ưu hóa CWLP đa kỳ:} Giải độc lập từng tháng bằng hai phương pháp đối sánh:
+        \begin{itemize}
+            \item \textbf{MILP (Branch-and-Cut):} Tìm nghiệm tối ưu toàn cục tuyệt đối (Gap 0\%) bằng CBC Solver.
+            \item \textbf{Benders Decomposition:} Phân rã bài toán thành Master và Dual Subproblem, giải lặp để tiệm cận nghiệm tối ưu.
+        \end{itemize}
+    \item \textbf{Bước 10 - Đề xuất cấu hình vận hành:} Đưa ra danh sách các kho chiến lược cần mở $\mathcal{H}_t^*$ và kế hoạch định tuyến luồng phân bổ hàng hóa $x_{ij,t}^*$ cho doanh nghiệp.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/pipeline_day6_cwlp_phase1.png}
+    \caption{Sơ đồ Giai đoạn 1: Dự báo nhu cầu bằng Mamba4Cast}
+    \label{fig:pipeline_phase1}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/pipeline_day6_cwlp_phase2.png}
+    \caption{Sơ đồ Giai đoạn 2: Giải bài toán tối ưu vị trí kho CWLP}
+    \label{fig:pipeline_phase2}
+\end{figure}
+
+% =================================================================
+% TIỂU MỤC 2.3: MÔ HÌNH DỰ BÁO
+% =================================================================
+\section{Mô hình dự báo}
+\label{sec:mamba4cast_model}
+
+Mô hình Mamba4Cast \cite{bhethanabhotla2024} là một mô hình nền tảng (foundation model) dự báo chuỗi thời gian không cần tinh chỉnh (zero-shot forecasting), được xây dựng trên nền tảng kiến trúc Mô hình Không gian Trạng thái Chọn lọc (Selective State Space Models - Mamba-2) \cite{dao2024} kết hợp với triết lý mạng học từ phân phối tiên nghiệm (Prior-data Fitted Networks - PFNs) \cite{hollmann2023}. 
+
+\subsection{Tổng quan về Mô hình Không gian Trạng thái}
+\label{subsec:ssm_background}
+
+Mô hình Không gian Trạng thái (SSM) tuyến tính cổ điển \cite{gu2024mamba} là các hệ thống động lực học liên kết tín hiệu đầu vào $x(t) \in \mathbb{R}$ với tín hiệu đầu ra $y(t) \in \mathbb{R}$ thông qua một trạng thái ẩn trung gian $h(t) \in \mathbb{R}^N$. Hệ thống này được định nghĩa bởi hệ phương trình vi phân sau:
+\begin{equation}
+    h'(t) = A h(t) + B x(t)
+\end{equation}
+\begin{equation}
+    y(t) = C h(t)
+\end{equation}
+Trong đó $h(t)$ đại diện cho trạng thái ẩn kích thước $N$; $A \in \mathbb{R}^{N \times N}$ là ma trận chuyển trạng thái; $B \in \mathbb{R}^{N \times 1}$ là ma trận nhúng đầu vào; $C \in \mathbb{R}^{1 \times N}$ là ma trận chiếu đầu ra.
+
+Để áp dụng hệ thống liên tục này vào các chuỗi thời gian rời rạc với chu kỳ đo lường nhất định, các phương trình trên được rời rạc hóa bằng tham số bước thời gian $\Delta > 0$ (discretization step size). Sử dụng quy tắc xấp xỉ giữ bậc không (Zero-Order Hold - ZOH), ma trận chuyển đổi liên tục được ánh xạ sang các ma trận rời rạc tương ứng $(\bar{A}, \bar{B})$ như sau:
+\begin{equation}
+    \bar{A} = \exp(\Delta A)
+\end{equation}
+\begin{equation}
+    \bar{B} = (\Delta A)^{-1}(\exp(\Delta A) - I) \cdot \Delta B
+\end{equation}
+Sau khi rời rạc hóa, hệ phương trình của SSM được biểu diễn dưới dạng đệ quy sai phân tuyến tính:
+\begin{equation}
+    h_t = \bar{A} h_{t-1} + \bar{B} x_t
+\end{equation}
+\begin{equation}
+    y_t = C h_t
+\end{equation}
+
+Trong các mô hình bất biến theo thời gian (Linear Time-Invariant - LTI), các ma trận $\bar{A}, \bar{B}, C$ là hằng số cố định đối với mọi bước thời gian $t$. Điều này cho phép biểu diễn toán học của SSM rời rạc dưới dạng một phép toán tích chập (convolution) trên toàn chuỗi độ dài $L$:
+\begin{equation}
+    y_t = \sum_{k=0}^{t} C \bar{A}^{t-k} \bar{B} x_k = (x \ast K)_t
+\end{equation}
+Với nhân tích chập (convolution kernel) $K$ được định nghĩa trước:
+\begin{equation}
+    K = \left( C\bar{B}, C\bar{A}\bar{B}, C\bar{A}^2\bar{B}, \dots, C\bar{A}^L\bar{B} \right)
+\end{equation}
+Tuy nhiên, tính chất bất biến theo thời gian (LTI) giới hạn khả năng lọc chọn thông tin theo ngữ cảnh của mô hình. Mamba-1 giải quyết vấn đề này bằng cách đưa vào cơ chế lựa chọn (Selective Mechanism) \cite{gu2024mamba}, làm cho các tham số rời rạc hóa $(\Delta_t, B_t, C_t)$ phụ thuộc trực tiếp vào giá trị đầu vào $x_t$ tại mỗi bước thời gian thông qua các phép chiếu tuyến tính:
+\begin{align}
+    \Delta_t &= \text{Softplus}(x_t W_{\Delta} + b_{\Delta}) \\
+    B_t      &= x_t W_B + b_B \\
+    C_t      &= x_t W_C + b_C
+\end{align}
+Cơ chế này phá vỡ tính LTI và ngăn cản việc tính toán trực tiếp bằng phép tích chập thông thường. Để đảm bảo hiệu năng huấn luyện song song, mô hình sử dụng thuật toán quét song song liên kết (parallel associative scan) chạy trên phần cứng GPU chuyên dụng \cite{gu2024mamba}.
+
+\subsection{Mô hình Mamba-2 và Đối ngẫu Không gian Trạng thái Cấu trúc}
+\label{subsec:mamba2_ssd}
+
+Mamba4Cast áp dụng phiên bản cải tiến Mamba-2 \cite{dao2024}. Điểm cải tiến cốt lõi của Mamba-2 nằm ở việc thiết lập các ràng buộc cấu trúc chặt chẽ hơn lên ma trận chuyển trạng thái $A_t$. Thay vì sử dụng ma trận đường chéo tổng quát $A_t \in \mathbb{R}^{N \times N}$ bất kỳ như Mamba-1, Mamba-2 giới hạn ma trận này về dạng tích của một đại lượng vô hướng với ma trận đơn vị:
+\begin{equation}
+    A_t = a_t I_N
+\end{equation}
+Trong đó $a_t \in \mathbb{R}$ là một hằng số thực vô hướng và $I_N$ là ma trận đơn vị cấp $N$. Nhờ đó, ma trận chuyển đổi trạng thái đã rời rạc hóa $\bar{A}_t$ rút gọn thành một đại lượng vô hướng tỷ lệ $s_t$:
+\begin{equation}
+    \bar{A}_t = \exp(\Delta_t a_t) I_N = s_t I_N, \quad s_t \in \mathbb{R}
+\end{equation}
+Khi đó phương trình cập nhật trạng thái ẩn được đơn giản hóa:
+\begin{equation}
+    h_t = s_t h_{t-1} + \bar{B}_t x_t
+\end{equation}
+Kéo theo công thức tính toán đầu ra $y_t$:
+\begin{equation}
+    y_t = C_t \sum_{j=1}^{t} \left( \prod_{k=j+1}^{t} s_k \right) \bar{B}_j x_j = \sum_{j=1}^{t} (C_t \bar{B}_j) \left( \prod_{k=j+1}^{t} s_k \right) x_j
+\end{equation}
+
+Sự đơn giản hóa này mang lại sự kết nối toán học sâu sắc giữa Mô hình Không gian Trạng thái và cơ chế chú ý tuyến tính (Linear Attention) thông qua lý thuyết \textbf{Đối ngẫu Không gian Trạng thái Cấu trúc (Structural State Space Duality - SSD)} \cite{dao2024}. Nếu coi $Q_t = C_t$, $K_j = \bar{B}_j$ và $V_j = x_j$, ta có thể biểu diễn phép biến đổi SSM dưới dạng phép nhân ma trận bán phân tách (semi-separable matrix multiplication):
+\begin{equation}
+    Y = M X, \quad M_{t,j} = C_t \left( \prod_{k=j+1}^{t} s_k \right) B_j
+\end{equation}
+Thay vì thực hiện quét song song liên kết tuần tự, SSD chia chuỗi đầu vào độ dài $L$ thành các khối nhỏ (blocks) kích thước $Q$ (thường chọn $Q = 64$). Phép tính toán ma trận $M$ được phân rã thành hai phần:
+\begin{itemize}
+    \item \textbf{Tính toán nội khối (Intra-block computation):} Được thực hiện song song bằng phép nhân ma trận trực tiếp trên các lõi Tensor (Tensor Cores) của GPU với độ phức tạp hiệu năng cao.
+    \item \textbf{Tính toán liên khối (Inter-block computation):} Trạng thái chuyển giao giữa các khối được truyền tải tuần tự bằng đệ quy SSM quy mô nhỏ dọc theo ranh giới khối.
+\end{itemize}
+Sự kết hợp này cho phép Mamba-2 huấn luyện nhanh hơn Mamba-1 từ 2 đến 8 lần, đồng thời duy trì ưu thế độ phức tạp tuyến tính $O(L)$ theo chiều dài chuỗi \cite{dao2024}.
+
+\subsection{Kiến trúc chi tiết của Mô hình Mamba4Cast}
+\label{subsec:mamba4cast_arch}
+
+Kiến trúc tổng quan của mô hình Mamba4Cast được mô tả trực quan trong Hình \ref{fig:mamba4cast_architecture}. Toàn bộ hệ thống xử lý bao gồm 4 giai đoạn chính: Tiền xử lý, Mã hóa đầu vào (Input Embedding), Các khối Encoder Mamba-2 xếp chồng, và Bộ giải mã tuyến tính (Linear Decoder) \cite{bhethanabhotla2024}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/Architecture_Schematic.png}
+    \caption{Sơ đồ cấu trúc hệ thống của mô hình Mamba4Cast (Nguồn: Bhethanabhotla và các cộng sự \cite{bhethanabhotla2024})}
+    \label{fig:mamba4cast_architecture}
+\end{figure}
+
+\subsubsection{1. Tiền xử lý dữ liệu (Preprocessing)}
+Với một chuỗi thời gian thực tế $z_{1:T}$ có độ dài ngữ cảnh $C$ và khoảng dự báo $H$, trước hết giá trị chuỗi được chuẩn hóa về đoạn $[0, 1]$ thông qua bộ tỷ lệ Min-Max dựa trên cửa sổ ngữ cảnh lịch sử:
+\begin{equation}
+    \tilde{z}_t = \frac{z_t - \min(z_{1:C})}{\max(z_{1:C}) - \min(z_{1:C})}, \quad t = 1, \dots, C
+\end{equation}
+Song song với đó, các nhãn thời gian tương ứng $u_t$ tại mỗi bước thời gian được bóc tách thành 7 thuộc tính thời gian rời rạc: phút, giờ, thứ trong tuần, ngày trong tháng, ngày trong năm, tháng, và năm.
+
+\subsubsection{2. Mã hóa đầu vào và tích chập nhân quả đa quy mô (Input Embedding)}
+Các giá trị chuỗi đã chuẩn hóa $\tilde{z}_t$ được chiếu tuyến tính qua lớp nhúng giá trị thành vector không gian con $e^{\text{val}}_t \in \mathbb{R}^{d_v}$. Đồng thời, các thuộc tính thời gian $u_t$ được mã hóa bằng cơ chế mã hóa hình sin để giữ lại thông tin chu kỳ lịch sử:
+\begin{align}
+    e^{\text{temp}}_{t, 2i} &= \sin\left( \frac{u_t}{10000^{\frac{2i}{d_u}}} \right) \\
+    e^{\text{temp}}_{t, 2i+1} &= \cos\left( \frac{u_t}{10000^{\frac{2i}{d_u}}} \right)
+\end{align}
+Hai vector nhúng này được ghép nối thành vector nhúng biểu diễn hỗn hợp $e_t = [e^{\text{val}}_t; e^{\text{temp}}_t] \in \mathbb{R}^{D_{\text{in}}}$ với chiều nhúng ban đầu $D_{\text{in}} = 112$. 
+
+Để thu thập thông tin ngữ cảnh đa quy mô thời gian, chuỗi vector nhúng $E = (e_1, \dots, e_T)$ được đưa qua bộ tích chập nhân quả xếp chồng (Stacked Causal Convolution 1D) gồm 4 lớp tích chập với kích thước nhân tích chập $k=5$ và các tham số độ giãn tăng dần theo lũy thừa cơ số 2: $d \in \{1, 2, 4, 8\}$. Các đầu ra tích chập được ghép nối và kích hoạt bằng hàm GeLU, sau đó chuẩn hóa qua lớp LayerNorm:
+\begin{equation}
+    V = \left[ \text{CausalConv}_1(E); \text{CausalConv}_2(E); \text{CausalConv}_4(E); \text{CausalConv}_8(E) \right]
+\end{equation}
+Một lớp tích chập Inception tiếp tục được áp dụng để chiếu giảm số chiều từ $4 D_{\text{in}}$ về số chiều nhúng cốt lõi $D = 1024$:
+\begin{equation}
+    H_0 = \text{InceptionProj}(V) \in \mathbb{R}^{L \times 1024}
+\end{equation}
+
+\subsubsection{3. Các khối mã hóa xếp chồng (Encoder Blocks)}
+Khối mã hóa của Mamba4Cast gồm $N_{\text{layers}} = 2$ khối Encoder chồng lên nhau. Mỗi khối Encoder chứa:
+\begin{enumerate}
+    \item Khối xử lý trung tâm Mamba-2 với hệ số mở rộng khối $E = 2$ và hệ số mở rộng trạng thái ẩn $N = 128$.
+    \item Lớp chuẩn hóa LayerNorm giúp ổn định đạo hàm và giảm nhiễu tín hiệu học tập.
+    \item Lớp tích chập giãn nhân quả (dilated causal convolution 1D) kết hợp hàm kích hoạt GeLU đóng vai trò củng cố liên kết cục bộ giữa các bước thời gian.
+\end{enumerate}
+
+\subsubsection{4. Bộ giải mã tuyến tính dự báo một bước (Linear Decoder)}
+Mamba4Cast áp dụng chiến lược \textbf{dự báo đa điểm một bước (one-pass multipoint forecasting)} \cite{bhethanabhotla2024}. Các token đầu vào thuộc khoảng chân trời dự báo $H$ được đệm trước bằng giá trị $0$. Sau khi đi qua các lớp mã hóa, trạng thái ẩn đầu ra tại các vị trí này $H_{\text{out}, T+1:T+H}$ được chiếu trực tiếp qua một lớp tuyến tính duy nhất để đưa ra giá trị dự báo điểm cuối cùng:
+\begin{equation}
+    \widehat{z}_{T+1:T+H} = H_{\text{out}, T+1:T+H} W_{\text{dec}} + b_{\text{dec}}
+\end{equation}
+Phương pháp này giúp giảm đáng kể chi phí tính toán khi suy luận thực tế (inference latency) và tăng tốc độ xử lý lên nhiều lần so với cơ chế dịch chuyển tự hồi quy thông thường.
+
+\subsection{Quy trình Tạo Dữ liệu Tổng hợp}
+\label{subsec:synthetic_generation}
+
+Khả năng khái quát hóa mạnh mẽ vượt trội của Mamba4Cast trong điều kiện học không nhãn (zero-shot learning) có được nhờ quy trình huấn luyện đặc thù hoàn toàn trên dữ liệu tổng hợp nhân tạo đa dạng \cite{bhethanabhotla2024}. Mô hình kết hợp song song hai nguồn phân phối tiên nghiệm (priors) cốt lõi:
+
+\subsubsection{1. Phân phối tiên nghiệm ForecastPFN (FPFN Prior)}
+Phân phối này mô phỏng các chuỗi thời gian thực tế thông qua việc phân rã chuỗi thành ba thành phần độc lập: xu hướng (trend), mùa vụ (seasonality), và nhiễu \cite{dooley2023}:
+\begin{equation}
+    z(t) = \text{Trend}(t) + \text{Seasonal}(t) + \text{Noise}(t)
+\end{equation}
+\begin{itemize}
+    \item \textbf{Xu hướng (Trend):} Để tránh hiện tượng mô hình mất kiểm soát khi dự báo các chuỗi có xu hướng tăng trưởng phi tuyến tính quá mạnh, xu hướng trong Mamba4Cast được giới hạn ở dạng tăng trưởng đa thức hoặc tuyến tính đơn giản: $\text{Trend}(t) = a t + b$.
+    \item \textbf{Mùa vụ (Seasonality):} Được mô hình hóa bằng tổng các sóng điều hòa hình sin tương ứng với các mức độ hạt thời gian khác nhau (phút, giờ, ngày, tuần, tháng):
+    \begin{equation}
+        \text{Seasonal}(t) = \sum_{p} \sum_{h=1}^{n_p} \alpha_{p,h} \sin\left( \frac{2\pi h t}{T_p} + \phi_{p,h} \right)
+    \end{equation}
+    Trong cấu hình tối ưu của Mamba4Cast, số lượng sóng hài tương ứng với từng mức độ hạt thời gian được rút giảm từ $10$ hoặc $6$ xuống còn $8$ và $5$ sóng hài để ngăn chặn việc gây nhiễu quá mức cho mô hình.
+    \item \textbf{Nhiễu (Noise):} Được mô phỏng bằng phân phối Weibull để duy trì kỳ vọng không đổi dọc theo toàn bộ chuỗi.
+\end{itemize}
+
+\subsubsection{2. Phân phối tiên nghiệm Quá trình Gaussian (GP Priors)}
+Mamba4Cast tích hợp dữ liệu sinh ra từ Quá trình Gaussian (Gaussian Process - GP) với hàm trung bình ngẫu nhiên và hàm hợp thành từ ngân hàng nhân đặc trưng (Kernel bank) \cite{gardner2018}. Ngân hàng nhân bao gồm các hạt nhân cơ bản: Nhân tuyến tính, Nhân đa thức, Nhân Matern, và Nhân chu kỳ. Một chuỗi thời gian GP được sinh ra bằng cách kết hợp ngẫu nhiên tối đa 6 hạt nhân từ ngân hàng thông qua các phép toán cộng hoặc nhân. Nhiễu trong GP được mô phỏng qua phân phối Gaussian kết hợp với phương pháp bổ sung nhiễu Jitter Cholesky theo các mức độ $\{0.1, 0.01, 0.001\}$ tương ứng với phân bổ xác suất $\{0.1, 0.2, 0.7\}$ nhằm tăng khả năng chịu nhiễu của mô hình trên các tập dữ liệu thực tế.
+
+\subsubsection{3. Nhiễu mức tín hiệu (Signal-level noises)}
+Bên cạnh nhiễu trắng, mô hình đưa thêm hai loại nhiễu cấu trúc:
+\begin{itemize}
+    \item \textbf{Nhiễu đột biến (Spikes):} Tạo ra các đỉnh nhọn ngẫu nhiên tại các khoảng cách chu kỳ nhất định, kết hợp cửa sổ che mặt nạ ngẫu nhiên lên đến $40\%$ số lượng đỉnh đột biến để mô phỏng hiện tượng đột biến nhu cầu mua sắm đột ngột.
+    \item \textbf{Nhiễu dịch chuyển mức nền (Step noise):} Áp dụng hàm bậc thang xen kẽ cao-thấp nhằm mô phỏng hiện tượng dịch chuyển mức nền theo mùa.
+\end{itemize}
+
+\subsubsection{4. Tỷ lệ phối trộn dữ liệu huấn luyện và tinh chỉnh}
+Dữ liệu huấn luyện được phối trộn theo tỷ lệ tối ưu: $70\%$ dữ liệu từ GP Priors và $30\%$ từ FPFN Priors. Mô hình được huấn luyện qua hai giai đoạn:
+\begin{enumerate}
+    \item \textbf{Huấn luyện chính ($360.000$ rounds):} Sử dụng bộ trọng số nhân GP ưu tiên nhân chu kỳ (Periodic, Matern, Linear với tỷ trọng tương ứng là $5 : 1.5 : 1$).
+    \item \textbf{Tinh chỉnh ($60.000$ rounds):} Thay đổi bộ trọng số nhân GP (Periodic, Matern, Polynomial chuyển dịch thành $5 : 2 : 1$) giúp tăng khả năng thích ứng của mô hình đối với các đặc trưng xu hướng phi tuyến tính phức tạp.
+\end{enumerate}
+
+
+% =================================================================
+% TIỂU MỤC 2.4: MÔ HÌNH TỐI ƯU VỊ TRÍ KHO
+% =================================================================
+\section{Mô hình tối ưu vị trí kho}
+\label{sec:warehouse_optimization_model}
+
+Sau khi thu được nhu cầu dự báo vận tải từ mô hình học sâu Mamba4Cast ở khâu trước, dữ liệu này sẽ được chuyển dịch làm tham số đầu vào cho bài toán tối ưu hóa mạng lưới logistics. Bài toán được mô hình hóa dưới dạng bài toán định vị kho bãi có ràng buộc sức chứa đa thời kỳ (Multi-Period Capacitated Warehouse Location Problem - CWLP), phát triển từ thiết lập gốc của Milazzo và cộng sự \cite{milazzo2022} trên cơ sở lý thuyết toán học về bài toán định vị kho chứa có ràng buộc sức chứa của Aardal \cite{aardal1998}. 
+
+Để giải quyết mô hình toán học này, đồ án sử dụng hai phương pháp tiếp cận: Quy hoạch tuyến tính nguyên hỗn hợp (MILP) giải trực tiếp bằng thuật toán Nhánh và Cắt (Branch-and-Cut) và thuật toán phân rã toán học Benders (Benders Decomposition).
+
+\subsection{Mô hình Quy hoạch nguyên hỗn hợp (MILP) của bài toán CWLP}
+
+Mô hình toán học được mô tả chi tiết qua hệ thống chỉ số, biến quyết định và các ràng buộc như sau:
+
+\subsubsection{1. Tập chỉ số và tham số}
+\begin{itemize}
+    \item $\mathcal{F}$: Tập hợp các kho bãi ứng viên tiềm năng ($i \in \mathcal{F}$).
+    \item $\mathcal{D}$: Tập hợp các vùng tiêu thụ của khách hàng ($j \in \mathcal{D}$).
+    \item $\mathcal{T}$: Tập hợp các tháng quy hoạch ($t \in \mathcal{T} = \{1, \dots, 6\}$).
+    \item $d_{j,t}$: Nhu cầu thể tích hàng hóa dự báo ($m^3$) tại vùng cầu $j$ trong tháng $t$.
+    \item $c_{ij}$: Chi phí vận chuyển đơn vị từ kho $i$ đến vùng cầu $j$ (BRL/$m^3$), tỷ lệ thuận với khoảng cách địa lý.
+    \item $f_i$: Chi phí cố định thuê/vận hành kho ứng viên $i$ trong một tháng.
+    \item $S_{i,t}$: Sức chứa tối đa của kho ứng viên $i$ trong tháng $t$, được cấu hình động theo biến động tổng cầu:
+    \begin{equation}
+        S_{i,t} = S_{\text{CAP}, t} = \max\left(5{,}0, \text{ceil}\left(\frac{\sum_{j \in \mathcal{D}} d_{j,t}}{k} \times 1{,}1\right)\right)
+    \end{equation}
+    \item $k$: Số lượng kho bãi tối đa được phép mở đồng thời trong mỗi tháng.
+\end{itemize}
+
+\subsubsection{2. Các biến quyết định}
+\begin{itemize}
+    \item $y_{i,t} \in \{0, 1\}$: Biến nhị phân quyết định mở kho; $y_{i,t} = 1$ nếu kho ứng viên $i$ được mở trong tháng $t$, ngược lại $y_{i,t} = 0$.
+    \item $x_{ij,t} \ge 0$: Biến liên tục chỉ lượng thể tích hàng hóa ($m^3$) phân bổ từ kho $i$ đến vùng cầu $j$ trong tháng $t$.
+\end{itemize}
+
+\subsubsection{3. Hàm mục tiêu và các ràng buộc}
+Hàm mục tiêu tối thiểu hóa tổng chi phí của mạng lưới tại mỗi chu kỳ tháng $t$:
+\begin{equation}
+    \min Z_t = \sum_{i \in \mathcal{F}} \sum_{j \in \mathcal{D}} c_{ij} x_{ij,t} + \sum_{i \in \mathcal{F}} f_i y_{i,t}
+\end{equation}
+
+Hệ ràng buộc của mô hình:
+\begin{align}
+    \sum_{i \in \mathcal{F}} x_{ij,t} &= d_{j,t}, && \forall j \in \mathcal{D} \quad \text{(Ràng buộc đáp ứng nhu cầu)} \\
+    \sum_{j \in \mathcal{D}} x_{ij,t} &\le S_{i,t} y_{i,t}, && \forall i \in \mathcal{F} \quad \text{(Giới hạn sức chứa kho bãi)} \\
+    \sum_{i \in \mathcal{F}} y_{i,t} &\le k, && \text{(Giới hạn số kho tối đa hoạt động)} \\
+    x_{ij,t} &\ge 0, && \forall i \in \mathcal{F}, j \in \mathcal{D} \\
+    y_{i,t} &\in \{0, 1\}, && \forall i \in \mathcal{F}
+\end{align}
+
+\subsection{Phương pháp giải trực tiếp MILP bằng thuật toán Nhánh và Cắt}
+
+Thuật toán Nhánh và Cắt (Branch-and-Cut) là phương pháp chuẩn mực được sử dụng bởi bộ giải CBC để tìm nghiệm tối ưu toàn cục của mô hình MILP.
+
+\subsubsection{1. Nguyên lý hoạt động}
+\begin{itemize}
+    \item \textbf{Nới lỏng tuyến tính (LP Relaxation):} Ràng buộc nguyên $y_{i,t} \in \{0, 1\}$ được nới lỏng thành ràng buộc liên tục $0 \le y_{i,t} \le 1$. Bài toán quy hoạch tuyến tính nới lỏng này được giải bằng phương pháp Simplex.
+    \item \textbf{Sinh mặt cắt (Cutting Planes):} Nếu nghiệm nới lỏng của các biến $y_{i,t}$ nhận các giá trị phân số, bộ giải sinh ra các mặt cắt toán học (như Gomory cuts, Cover inequalities) nhằm cắt bỏ các phần không gian nghiệm phân số này, từ đó siết chặt cận dưới (Lower Bound).
+    \item \textbf{Phân nhánh (Branching):} Nếu nghiệm chưa nguyên, bộ giải chọn một biến phân số $y_{i,t}^*$ và chia bài toán thành hai nhánh con độc lập: $y_{i,t} = 0$ và $y_{i,t} = 1$. Quy trình này được lặp lại đệ quy để tạo ra cây tìm kiếm.
+\end{itemize}
+
+\subsubsection{2. Hiện thực hóa thuật toán MILP bằng mã Python}
+Dưới đây là mã Python thiết lập và giải bài toán tối ưu hóa vị trí kho chứa có ràng buộc sức chứa (CWLP) bằng mô hình MILP thông qua thư viện \texttt{PuLP} và bộ giải \texttt{CBC}:
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{p{15cm}}
+\hline
+\textbf{Thuật toán 1:} Mô hình tối ưu hóa CWLP bằng MILP (sử dụng thư viện PuLP) \\
+\hline
+\texttt{import pulp} \\
+\texttt{def solve\_cwlp\_milp(F, D, d, c, f, S, k):} \\
+\texttt{\quad \# Khởi tạo bài toán tối thiểu hóa tổng chi phí} \\
+\texttt{\quad prob = pulp.LpProblem("CWLP\_MILP", pulp.LpMinimize)} \\
+\texttt{\quad \# Khai báo các biến quyết định y\_i và x\_ij} \\
+\texttt{\quad y = pulp.LpVariable.dicts("y", F, cat="Binary")} \\
+\texttt{\quad x = pulp.LpVariable.dicts("x", ((i, j) for i in F for j in D), lowBound=0, cat="Continuous")} \\
+\texttt{\quad \# Hàm mục tiêu tối thiểu tổng chi phí mở kho và chi phí vận chuyển} \\
+\texttt{\quad prob += pulp.lpSum(c[i, j]*x[i, j] for i in F for j in D) + pulp.lpSum(f[i]*y[i] for i in F)} \\
+\texttt{\quad \# Ràng buộc đáp ứng đầy đủ nhu cầu của khách hàng} \\
+\texttt{\quad for j in D:} \\
+\texttt{\quad \quad prob += pulp.lpSum(x[i, j] for i in F) == d[j]} \\
+\texttt{\quad \# Ràng buộc giới hạn sức chứa và kích hoạt mở kho} \\
+\texttt{\quad for i in F:} \\
+\texttt{\quad \quad prob += pulp.lpSum(x[i, j] for j in D) <= S[i] * y[i]} \\
+\texttt{\quad \# Ràng buộc giới hạn số lượng kho tối đa hoạt động} \\
+\texttt{\quad prob += pulp.lpSum(y[i] for i in F) <= k} \\
+\texttt{\quad solver = pulp.PULP\_CBC\_CMD(msg=False)} \\
+\texttt{\quad prob.solve(solver)} \\
+\texttt{\quad status = pulp.LpStatus[prob.status]} \\
+\texttt{\quad y\_opt = \{i: y[i].varValue for i in F\}} \\
+\texttt{\quad x\_opt = \{(i, j): x[i, j].varValue for i in F for j in D\}} \\
+\texttt{\quad z\_opt = pulp.value(prob.objective)} \\
+\texttt{\quad return status, y\_opt, x\_opt, z\_opt} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Phương pháp Phân rã Benders}
+
+Đối với bài toán CWLP có quy mô lớn, phương pháp phân rã Benders \cite{sadatasl2021} được áp dụng để chia tách cấu trúc bài toán gốc thành Bài toán chính Master (chỉ chứa các biến quyết định mở kho nhị phân $y_{i,t}$) và Bài toán con Subproblem (chỉ chứa các biến thực liên tục phân bổ dòng hàng $x_{ij,t}$). Quá trình phân rã được thực hiện độc lập cho từng tháng $t$:
+
+\subsubsection{1. Bài toán con đối ngẫu Benders (Benders Dual Subproblem - DSP)}
+Giả sử tại vòng lặp thứ $p$, Bài toán chính Benders đã tìm được cấu hình mở kho tạm thời là $\hat{y}_{i,t} \in \{0, 1\}$. Khi cố định cấu hình này, Bài toán con Primal (PSP) giải quyết vấn đề phân bổ dòng hàng hóa tối ưu. Lấy đối ngẫu của bài toán PSP này, ta được Bài toán phụ đối ngẫu Benders (DSP).
+
+Để tối ưu hóa tốc độ và triệt tiêu tính vô hạn (unboundedness) khi giải trên máy tính, bài toán DSP được thiết lập trực tiếp trên tập các kho **ĐÃ MỞ** tạm thời $\mathcal{F}_{\text{open}} = \{i \in \mathcal{F} \mid \hat{y}_{i,t}^{(p)} = 1\}$. Gọi $u_{j,t} \in \mathbb{R}$ là biến đối ngẫu của ràng buộc đáp ứng nhu cầu và $w_{i,t} \ge 0$ là biến đối ngẫu của ràng buộc sức chứa kho bãi. Bài toán phụ đối ngẫu DSP của tháng $t$ tại vòng lặp $p$ được viết như sau:
+\begin{equation}
+    \max \quad W_t(u, w) = \sum_{j \in \mathcal{D}} d_{j,t} u_{j,t} - \sum_{i \in \mathcal{F}_{\text{open}}} S_{i,t} w_{i,t}
+\end{equation}
+Phụ thuộc vào hệ ràng buộc đối ngẫu:
+\begin{align}
+    u_{j,t} - w_{i,t} &\le c_{ij}, && \forall i \in \mathcal{F}_{\text{open}}, j \in \mathcal{D} \\
+    u_{j,t} &\in \mathbb{R}, && \forall j \in \mathcal{D} \\
+    w_{i,t} &\ge 0, && \forall i \in \mathcal{F}_{\text{open}}
+\end{align}
+
+Sau khi giải xong bài toán phụ DSP trên, ta thu được nghiệm đối ngẫu tối ưu cực biên $(u_{j,t}^*, w_{i,t}^*)$ cho các kho đang mở. Đối với các kho đang đóng ($i \notin \mathcal{F}_{\text{open}}$), giá trị biến đối ngẫu $w_{i,t}^*$ được kiến tạo lại theo đúng lý thuyết đối ngẫu bài toán kho để bảo đảm tính khả thi đối ngẫu trên toàn mạng lưới:
+\begin{equation}
+    w_{i,t}^* = \max\left(0, \; \max_{j \in \mathcal{D}} (u_{j,t}^* - c_{ij})\right), \quad \forall i \in \mathcal{F} \setminus \mathcal{F}_{\text{open}}
+\end{equation}
+
+\subsubsection{2. Bài toán chính Benders (Benders Master Problem - BMP)}
+Bài toán chính Benders tại mỗi vòng lặp giải quyết việc tìm kiếm cấu hình mở kho nhị phân mới bằng cách tối ưu hóa cận dưới của chi phí vận tải thông qua biến phụ $\theta_t$:
+\begin{equation}
+    \min \quad Z_{\text{Master}, t} = \sum_{i \in \mathcal{F}} f_i y_{i,t} + \theta_t
+\end{equation}
+Chịu các ràng buộc:
+\begin{align}
+    \sum_{i \in \mathcal{F}} y_{i,t} &\le k \\
+    \sum_{i \in \mathcal{F}} y_{i,t} S_{i,t} &\ge \sum_{j \in \mathcal{D}} d_{j,t} \quad \text{(Ràng buộc khả thi tổng sức chứa cơ bản)} \\
+    \theta_t &\ge \sum_{j \in \mathcal{D}} d_{j,t} u_{j,t}^{(m)} - \sum_{i \in \mathcal{F}} S_{i,t} y_{i,t} w_{i,t}^{(m)}, \quad \forall m \in \mathcal{O} \quad (\text{Lát cắt tối ưu Benders})
+\end{align}
+Trong đó $\mathcal{O}$ là tập chỉ số của các lát cắt tối ưu được sinh ra tích lũy qua các vòng lặp trước đó.
+
+\subsubsection{3. Hiện thực hóa giải thuật phân rã Benders bằng mã Python}
+Dưới đây là mã Python hiện thực hóa giải thuật phân rã Benders cho bài toán vị trí kho chứa có ràng buộc sức chứa (CWLP), bao gồm việc giải lặp song song bài toán chính (Benders Master Problem - BMP) và bài toán con đối ngẫu (Benders Dual Subproblem - DSP):
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{p{15cm}}
+\hline
+\textbf{Thuật toán 2:} Giải bài toán CWLP bằng giải thuật phân rã Benders \\
+\hline
+\texttt{import pulp} \\
+\texttt{def solve\_cwlp\_benders(F, D, d, c, f, S, k, epsilon=1e-5, max\_iters=1000):} \\
+\texttt{\quad master = pulp.LpProblem("Benders\_Master", pulp.LpMinimize)} \\
+\texttt{\quad y = pulp.LpVariable.dicts("y", F, cat="Binary")} \\
+\texttt{\quad theta = pulp.LpVariable("theta", lowBound=0)} \\
+\texttt{\quad master += pulp.lpSum(f[i] * y[i] for i in F) + theta} \\
+\texttt{\quad master += pulp.lpSum(y[i] for i in F) <= k} \\
+\texttt{\quad master += pulp.lpSum(S[i] * y[i] for i in F) >= sum(d.values())} \\
+\texttt{\quad solver = pulp.PULP\_CBC\_CMD(msg=False)} \\
+\texttt{\quad LB, UB = -float('inf'), float('inf')} \\
+\texttt{\quad y\_opt, x\_opt = None, None} \\
+\texttt{\quad for iteration in range(1, max\_iters + 1):} \\
+\texttt{\quad \quad master.solve(solver)} \\
+\texttt{\quad \quad y\_val = \{i: y[i].varValue for i in F\}} \\
+\texttt{\quad \quad theta\_val = theta.varValue} \\
+\texttt{\quad \quad LB = sum(f[i] * y\_val[i] for i in F) + theta\_val} \\
+\texttt{\quad \quad F\_open = [i for i in F if y\_val[i] \textgreater\ 0.5]} \\
+\texttt{\quad \quad dsp = pulp.LpProblem("Benders\_DSP", pulp.LpMaximize)} \\
+\texttt{\quad \quad u = pulp.LpVariable.dicts("u", D, cat="Continuous")} \\
+\texttt{\quad \quad w = pulp.LpVariable.dicts("w", F\_open, lowBound=0, cat="Continuous")} \\
+\texttt{\quad \quad dsp += pulp.lpSum(d[j]*u[j] for j in D) - pulp.lpSum(S[i]*w[i] for i in F\_open)} \\
+\texttt{\quad \quad for i in F\_open:} \\
+\texttt{\quad \quad \quad for j in D:} \\
+\texttt{\quad \quad \quad \quad dsp += u[j] - w[i] <= c[i, j]} \\
+\texttt{\quad \quad dsp.solve(solver)} \\
+\texttt{\quad \quad if dsp.status == pulp.LpStatusOptimal:} \\
+\texttt{\quad \quad \quad u\_opt = \{j: u[j].varValue for j in D\}} \\
+\texttt{\quad \quad \quad w\_opt = \{i: w[i].varValue if i in F\_open else} \\
+\texttt{\quad \quad \quad \quad \quad \quad max(0, max(u\_opt[j] - c[i, j] for j in D)) for i in F\}} \\
+\texttt{\quad \quad \quad dsp\_obj = sum(d[j]*u\_opt[j] for j in D) - sum(S[i]*w\_opt[i] for i in F\_open)} \\
+\texttt{\quad \quad \quad UB = min(UB, sum(f[i] * y\_val[i] for i in F) + dsp\_obj)} \\
+\texttt{\quad \quad \quad if UB - LB \textless\ epsilon:} \\
+\texttt{\quad \quad \quad \quad y\_opt = y\_val} \\
+\texttt{\quad \quad \quad \quad primal = pulp.LpProblem("Final\_Transportation", pulp.LpMinimize)} \\
+\texttt{\quad \quad \quad \quad x = pulp.LpVariable.dicts("x", ((i, j) for i in F\_open for j in D), lowBound=0)} \\
+\texttt{\quad \quad \quad \quad primal += pulp.lpSum(c[i, j]*x[i, j] for i in F\_open for j in D)} \\
+\texttt{\quad \quad \quad \quad for j in D:} \\
+\texttt{\quad \quad \quad \quad \quad primal += pulp.lpSum(x[i, j] for i in F\_open) == d[j]} \\
+\texttt{\quad \quad \quad \quad for i in F\_open:} \\
+\texttt{\quad \quad \quad \quad \quad primal += pulp.lpSum(x[i, j] for j in D) <= S[i]} \\
+\texttt{\quad \quad \quad \quad primal.solve(solver)} \\
+\texttt{\quad \quad \quad \quad x\_opt = \{(i, j): x[i, j].varValue if i in F\_open else 0.0 for i in F for j in D\}} \\
+\texttt{\quad \quad \quad \quad break} \\
+\texttt{\quad \quad \quad master += theta >= pulp.lpSum(d[j]*u\_opt[j] for j in D) -} \\
+\texttt{\quad \quad \quad \quad \quad \quad \quad \quad pulp.lpSum(S[i]*y[i]*w\_opt[i] for i in F)} \\
+\texttt{\quad return y\_opt, x\_opt, UB} \\
+\hline
+\end{tabular}
+\end{table}
